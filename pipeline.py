@@ -1,49 +1,71 @@
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
+from sklearn.preprocessing import StandardScaler, OneHotEncoder, OrdinalEncoder
 from sklearn.compose import ColumnTransformer
+from sklearn.decomposition import PCA
 from sklearn.pipeline import Pipeline
-from sklearn.ensemble import RandomForestRegressor
+# from sklearn.ensemble import RandomForestRegressor
 # from sklearn.linear_model import LinearRegression
 # from sklearn.neighbors import KNeighborsRegressor
-# from torch_regressor import TorchRegressor
+from torch_regressor import TorchRegressor
 
 
 def create_model_pipeline():
 
-    numeric_features = [
+    numerical_features = [
+        'DISPATCH_RESPONSE_SECONDS_QY'
+    ]
+
+    nominal_features = [
+        'SPECIAL_EVENT_INDICATOR',
+        'STANDBY_INDICATOR',
+        'TRANSFER_INDICATOR',
+        'INITIAL_CALL_TYPE',
+        'FINAL_CALL_TYPE',
+        'HELD_INDICATOR',
+        'BOROUGH',
+        'INCIDENT_DISPATCH_AREA',
+        'CONGRESSIONALDISTRICT',
+        'CITYCOUNCILDISTRICT',
+
+    ]
+
+    ordinal_features = [
         'INITIAL_SEVERITY_LEVEL_CODE',
         'FINAL_SEVERITY_LEVEL_CODE',
         'hour_of_day',
         'day_of_week',
-        'month',
         'ZIPCODE',
-        'POLICEPRECINCT'
+        'POLICEPRECINCT',
+        'month'
     ]
 
-    categorical_features = [
-        'BOROUGH',
-        'HELD_INDICATOR',
-        'SPECIAL_EVENT_INDICATOR',
-        'STANDBY_INDICATOR',
-        'TRANSFER_INDICATOR'
-    ]
+    nominal_transformer = Pipeline(steps=[
+        ('onehot', OneHotEncoder(handle_unknown='ignore'))
+    ])
 
-    numeric_transformer = Pipeline(steps=[
+    ordinal_transformer = Pipeline(steps=[
+        ('ordinal', OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)),
         ('scaler', StandardScaler())
     ])
 
-    categorical_transformer = Pipeline(steps=[
-        ('onehot', OneHotEncoder(drop='first'))
+    numerical_transformer = Pipeline(steps=[
+        ('scaler', StandardScaler())
     ])
 
     preprocessor = ColumnTransformer(
         transformers=[
-            ('num', numeric_transformer, numeric_features),
-            ('cat', categorical_transformer, categorical_features)
+            ('nom', nominal_transformer, nominal_features),
+            ('ord', ordinal_transformer, ordinal_features),
+            ('num', numerical_transformer, numerical_features)
         ])
+
+    pca = Pipeline(steps=[
+        ('pca', PCA(n_components=50))
+    ])
 
     model_pipeline = Pipeline([
         ('preprocessor', preprocessor),
-        ('regressor', RandomForestRegressor(n_estimators=100))
+        ('pca', pca),
+        ('regressor', TorchRegressor())
     ])
 
     return model_pipeline

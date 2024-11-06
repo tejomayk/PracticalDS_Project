@@ -1,7 +1,7 @@
 import pandas as pd
 from train import train_and_evaluate_model
 
-df = pd.read_csv('df5.csv')
+df = pd.read_csv('data200k.csv')
 
 model, metrics = train_and_evaluate_model(df)
 

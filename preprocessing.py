@@ -3,6 +3,7 @@ import pandas as pd
 
 def prepare_data(df):
 
+    df.dropna(inplace=True)
     datetime_columns = [
         'INCIDENT_DATETIME',
         'INCIDENT_CLOSE_DATETIME'
@@ -19,9 +20,15 @@ def prepare_data(df):
         df['INCIDENT_CLOSE_DATETIME'] - df['INCIDENT_DATETIME']
     ).dt.total_seconds() / 60
 
+    df = df[df['INCIDENT_RESPONSE_SECONDS_QY'] <= 600]
+    df = df[df['INCIDENT_RESPONSE_SECONDS_QY'] > 0]
+
     feature_columns = [
         'INITIAL_SEVERITY_LEVEL_CODE',
         'FINAL_SEVERITY_LEVEL_CODE',
+        'DISPATCH_RESPONSE_SECONDS_QY',
+        'INITIAL_CALL_TYPE',
+        'FINAL_CALL_TYPE',
         'hour_of_day',
         'day_of_week',
         'month',
@@ -31,7 +38,10 @@ def prepare_data(df):
         'HELD_INDICATOR',
         'SPECIAL_EVENT_INDICATOR',
         'STANDBY_INDICATOR',
-        'TRANSFER_INDICATOR'
+        'TRANSFER_INDICATOR',
+        'INCIDENT_DISPATCH_AREA',
+        'CONGRESSIONALDISTRICT',
+        'CITYCOUNCILDISTRICT'
     ]
 
     target = 'INCIDENT_RESPONSE_SECONDS_QY'

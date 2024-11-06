@@ -7,9 +7,9 @@ from sklearn.base import RegressorMixin, BaseEstimator
 class FFN(nn.Module):
     def __init__(self, input_dim):
         super(FFN, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 64)
-        self.fc2 = nn.Linear(64, 32)
-        self.fc3 = nn.Linear(32, 1)
+        self.fc1 = nn.Linear(input_dim, 50)
+        self.fc2 = nn.Linear(50, 100)
+        self.fc3 = nn.Linear(100, 1)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
@@ -19,7 +19,7 @@ class FFN(nn.Module):
 
 
 class TorchRegressor(BaseEstimator, RegressorMixin):
-    def __init__(self, epochs=200, lr=0.1):
+    def __init__(self, epochs=200, lr=0.01):
         self.epochs = epochs
         self.lr = lr
         self.model = None
@@ -29,6 +29,8 @@ class TorchRegressor(BaseEstimator, RegressorMixin):
         self.model = FFN(input_dim=input_dim)
         optimizer = optim.Adam(self.model.parameters(), lr=self.lr)
         criterion = nn.MSELoss()
+        if hasattr(X, "toarray"):
+            X = X.toarray()
         X_tensor = torch.tensor(X, dtype=torch.float32)
         y_tensor = torch.tensor(y.to_numpy(), dtype=torch.float32).view(-1, 1)
 
@@ -44,6 +46,8 @@ class TorchRegressor(BaseEstimator, RegressorMixin):
     def predict(self, X):
         self.model.eval()
         with torch.no_grad():
+            if hasattr(X, "toarray"):
+                X = X.toarray()
             X_tensor = torch.tensor(X, dtype=torch.float32)
             predictions = self.model(X_tensor)
         return predictions.numpy().flatten()
