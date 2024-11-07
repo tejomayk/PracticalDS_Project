@@ -26,4 +26,4 @@ def train_and_evaluate_model(df):
         'RMSE': rmse,
         'R2': r2,
         'Test_Size': len(y_test),
-    }, y_pred, y_test
+    }, y_pred, y_test, y_train,

@@ -6,12 +6,16 @@ from sklearn.pipeline import Pipeline
 # from sklearn.linear_model import LinearRegression
 # from sklearn.neighbors import KNeighborsRegressor
 from torch_regressor import TorchRegressor
+# from sklearn.svm import SVR
+# from sklearn.neighbors import RadiusNeighborsRegressor
+# from sklearn.tree import DecisionTreeRegressor
 
 
 def create_model_pipeline():
 
     numerical_features = [
-        'DISPATCH_RESPONSE_SECONDS_QY'
+        'DISPATCH_RESPONSE_SECONDS_QY',
+        'INCIDENT_TRAVEL_TM_SECONDS_QY'
     ]
 
     nominal_features = [
@@ -44,7 +48,6 @@ def create_model_pipeline():
 
     ordinal_transformer = Pipeline(steps=[
         ('ordinal', OrdinalEncoder(handle_unknown='use_encoded_value', unknown_value=-1)),
-        ('scaler', StandardScaler())
     ])
 
     numerical_transformer = Pipeline(steps=[
@@ -59,7 +62,7 @@ def create_model_pipeline():
         ])
 
     pca = Pipeline(steps=[
-        ('pca', PCA(n_components=50))
+        ('pca', PCA(n_components=10))
     ])
 
     model_pipeline = Pipeline([

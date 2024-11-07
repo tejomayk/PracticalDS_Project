@@ -25,6 +25,7 @@ def prepare_data(df):
 
     feature_columns = [
         'INITIAL_SEVERITY_LEVEL_CODE',
+        'INCIDENT_TRAVEL_TM_SECONDS_QY',
         'FINAL_SEVERITY_LEVEL_CODE',
         'DISPATCH_RESPONSE_SECONDS_QY',
         'INITIAL_CALL_TYPE',

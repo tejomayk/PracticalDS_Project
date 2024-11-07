@@ -7,19 +7,35 @@ from sklearn.base import RegressorMixin, BaseEstimator
 class FFN(nn.Module):
     def __init__(self, input_dim):
         super(FFN, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 50)
-        self.fc2 = nn.Linear(50, 100)
-        self.fc3 = nn.Linear(100, 1)
+        self.fc1 = nn.Linear(input_dim, 16)
+        self.fc2 = nn.Linear(16, 32)
+        self.fc4 = nn.Linear(32, 1)
 
     def forward(self, x):
         x = torch.relu(self.fc1(x))
         x = torch.relu(self.fc2(x))
-        x = self.fc3(x)
+        x = torch.nn.functional.softplus(self.fc4(x))
+        return x
+
+
+class CNN(nn.Module):
+    def __init__(self, input_dim):
+        super(CNN, self).__init__()
+        self.conv1 = nn.Conv1d(in_channels=1, out_channels=16, kernel_size=3, stride=1, padding=1)
+        self.conv2 = nn.Conv1d(in_channels=16, out_channels=32, kernel_size=3, stride=1, padding=1)
+        self.fc = nn.Linear(32 * input_dim, 1)
+
+    def forward(self, x):
+        x = x.unsqueeze(1)
+        x = torch.relu(self.conv1(x))
+        x = torch.relu(self.conv2(x))
+        x = x.view(x.size(0), -1)
+        x = torch.nn.functional.softplus(self.fc(x))
         return x
 
 
 class TorchRegressor(BaseEstimator, RegressorMixin):
-    def __init__(self, epochs=200, lr=0.01):
+    def __init__(self, epochs=1000, lr=0.01):
         self.epochs = epochs
         self.lr = lr
         self.model = None
